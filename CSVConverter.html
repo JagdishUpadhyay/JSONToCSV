@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>JSON to CSV</title>
+<script src="./FileSaver.js"></script>
+<script>
+function convertJSONtoCSV(filename) {
+	var data = JSON.parse(document.getElementById('jsonTxt').value);
+	var filename = document.getElementById('filename').value;
+    var csv = convertDictToCSVStr(data);
+    var blob = new Blob([csv], {
+      type: "text/plain;charset=utf-8"
+    });
+    try {
+      saveAs(blob, filename);
+    } catch (e) {
+      saveTextAs(csv, filename);
+    }
+  }
+  
+  var convertDictToCSVStr = function(dict_arr) {
+  var cols = [];
+  var rows = [];
+  for (var index = 0; index < dict_arr.length; index++) {
+    var obj = dict_arr[index];
+    var len = Object.keys(obj).length;
+    var val = []; //new Array(len);
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        var keyUp = key.toUpperCase(); // force upper case on column names
+        if (cols.indexOf(keyUp) < 0) {
+          cols.push(keyUp);
+        }
+        var col_index = cols.indexOf(keyUp);
+        val[col_index] = '"' + obj[key] + '"';
+      }
+    }
+    if (val.length > 0) {
+      rows.push(val);
+    }
+  }
+
+  var rt = cols.join(',') + '\n';
+  for (index = 0; index < rows.length; index++) {
+    var row = rows[index];
+    rt += row.join(',') + '\n';
+  }
+  return rt;
+};
+
+function reset() {
+	document.getElementById('jsonTxt').value = '';
+}
+</script>
+</head>
+<body>
+<div style="width: 100%; margin: 20px;">
+<textarea cols="36" rows="12" style="width: 70%; margin: 5px; padding: 2px; border: 1px solid #ddd;" placeholder="paste your JSON here." id="jsonTxt"></textarea>
+</div>
+<div style="width: 100%; margin: 20px;">
+<label>File Name</label>
+<input type="text" value="Result.csv" id="filename" style="padding: 5px; margin: 10px; border-radius: 5px; border: 1px solid #ddd;"/>
+</div>
+<div style="margin: auto; width: 40%;">
+<button onclick="convertJSONtoCSV()" style="margin: 20px; padding: 10px; color: #f7f4f4; border-radius: 5px; background-color: #188B43;">Download CSV</button>
+<button onclick="reset()" style="margin: 20px; padding: 10px; color: #f7f4f4; border-radius: 5px; background-color: #188B43;">Reset</button>
+</div>
+</body>
